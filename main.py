@@ -1,39 +1,28 @@
-from mcp.server.fastmcp import FastMCP
 import os
 
+os.environ["HOST"] = "0.0.0.0"
+os.environ["PORT"] = os.environ.get("PORT", "8080")
 
-# Create an MCP server
+from mcp.server.fastmcp import FastMCP
+
 mcp = FastMCP("Demo", json_response=True)
 
-# Add an addition tool
 @mcp.tool()
 def add(a: int, b: int) -> int:
-    """Add two numbers"""
     return a + b
 
-
-# Add a dynamic greeting resource
 @mcp.resource("greeting://{name}")
 def get_greeting(name: str) -> str:
-    """Get a personalized greeting"""
     return f"Hello, {name}!"
 
-
-# Add a prompt
 @mcp.prompt()
-def greet_user(name: str, style: str = "friendly") -> str:
-    """Generate a greeting prompt"""
+def greet_user(name: str, style="friendly") -> str:
     styles = {
         "friendly": "Please write a warm, friendly greeting",
         "formal": "Please write a formal, professional greeting",
         "casual": "Please write a casual, relaxed greeting",
     }
-
     return f"{styles.get(style, styles['friendly'])} for someone named {name}."
 
-
-# Run with streamable HTTP transport
 if __name__ == "__main__":
-    os.environ.setdefault("PORT", "8080")
-    os.environ.setdefault("HOST", "0.0.0.0")
     mcp.run(transport="streamable-http")
