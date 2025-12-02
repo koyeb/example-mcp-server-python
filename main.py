@@ -34,6 +34,6 @@ def greet_user(name: str, style: str = "friendly") -> str:
 
 # Run with streamable HTTP transport
 if __name__ == "__main__":
-    os.environ.setdefault("PORT", "8000")
+    os.environ.setdefault("PORT", "8080")
     os.environ.setdefault("HOST", "0.0.0.0")
     mcp.run(transport="streamable-http")
