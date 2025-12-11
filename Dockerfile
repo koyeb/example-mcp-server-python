@@ -9,7 +9,7 @@ COPY . .
 
 EXPOSE 8080
 
-ENV UVICORN_HOST=0.0.0.0
-ENV UVICORN_PORT=8080
+ENV HOST=0.0.0.0
+ENV PORT=8080
 
-CMD ["python", "-c", "from main import mcp; mcp.run(transport='streamable-http')"]
+CMD ["python", "main.py"]
