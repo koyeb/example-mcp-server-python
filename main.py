@@ -18,3 +18,7 @@ def greet_user(name: str, style="friendly") -> str:
         "casual": "Please write a casual, relaxed greeting",
     }
     return f"{styles.get(style, styles['friendly'])} for someone named {name}."
+
+# Create ASGI app for uvicorn
+# According to FastMCP docs pattern
+app = mcp
