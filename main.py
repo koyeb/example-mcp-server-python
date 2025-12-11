@@ -2,17 +2,18 @@ from mcp.server.fastmcp import FastMCP
 import os
 import uvicorn
 
+# Initialize FastMCP with JSON response enabled
 mcp = FastMCP("Koyeb OpenAI Apps SDK Demo", json_response=True)
 
-# Define a prompt that generates a greeting message
-@mcp.prompt()
+# Define a tool that generates a greeting message
+@mcp.tool()
 def greet_user(name: str, style="friendly") -> str:
     styles = {
-        "friendly": "Please write a warm, friendly greeting",
-        "formal": "Please write a formal, professional greeting",
-        "casual": "Please write a casual, relaxed greeting",
+        "friendly": f"Hello, {name}! It's wonderful to meet you!",
+        "formal": f"Good day, {name}. It is a pleasure to make your acquaintance.",
+        "casual": f"Hey {name}! What's up?",
     }
-    return f"{styles.get(style, styles['friendly'])} for someone named {name}."
+    return styles.get(style, styles['friendly'])
 
 # Define a tool that counts occurrences of a letter in a given text
 @mcp.tool()
