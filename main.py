@@ -36,6 +36,11 @@ app.add_middleware(
     max_age=86400,
 )
 
+# Debug: Print registered routes
+print("Registered routes:")
+for route in app.routes:
+    print(f"  {route}")
+
 # Start the server
 port = int(os.environ.get("PORT", 8080))
 print(f"Listening on port {port}")
