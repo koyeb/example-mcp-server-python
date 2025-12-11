@@ -8,11 +8,12 @@ This MCP server demonstrates how to create AI-accessible tools and prompts that 
 
 ## Features
 
+### Resources
+- **UI Widget**: An HTML interface that displays tool results in ChatGPT (`ui://widget/demo.html`)
+
 ### Tools
 - **count_letter**: Counts occurrences of a specific letter in a given text string (case-insensitive)
-
-### Prompts
-- **greet_user**: Generates prompt templates for creating greetings in different styles (friendly, formal, casual)
+- **greet_user**: Generates personalized greetings in different styles (friendly, formal, casual)
 
 ## Prerequisites
 
@@ -91,41 +92,43 @@ Once deployed on Koyeb, you'll receive a public URL. To use this MCP server with
 
 ```
 .
-├── main.py           # FastMCP server implementation
-├── Dockerfile        # Container configuration
-├── requirements.txt  # Python dependencies
-└── README.md        # This file
+├── main.py              # FastMCP server implementation
+├── public/
+│   └── widget.html      # Web component for ChatGPT UI
+├── Dockerfile           # Container configuration
+├── requirements.txt     # Python dependencies
+└── README.md           # This file
 ```
 
 ## How It Works
 
-1. **FastMCP** creates an MCP server with tools and prompts
-2. **Streamable HTTP Transport** exposes the MCP protocol over HTTP at the `/mcp` endpoint
-3. **Uvicorn** serves the ASGI application
-4. **OpenAI Apps SDK** connects to the server and makes tools/prompts available to GPT models
+1. **FastMCP** creates an MCP server with tools and a UI resource
+2. **UI Widget** (HTML file) gets served as a resource and rendered in ChatGPT's iframe
+3. **Streamable HTTP Transport** exposes the MCP protocol over HTTP at the `/mcp` endpoint
+4. **Uvicorn** serves the ASGI application
+5. **OpenAI Apps SDK** connects to the server, displays the UI, and makes tools available to GPT models
+6. When a tool is called, the result is passed to the widget via `window.openai.toolOutput`
 
 ## Adding New Tools
 
-To add a new tool, use the `@mcp.tool()` decorator:
+To add a new tool, use the `@mcp.tool()` decorator with proper docstrings:
 
 ```python
 @mcp.tool()
 def your_tool_name(param1: str, param2: int) -> str:
-    """Description of what your tool does"""
+    """Description of what your tool does.
+    
+    Args:
+        param1: Description of first parameter
+        param2: Description of second parameter
+    """
     # Your implementation here
     return result
 ```
 
-## Adding New Prompts
+## Updating the UI Widget
 
-To add a new prompt template, use the `@mcp.prompt()` decorator:
-
-```python
-@mcp.prompt()
-def your_prompt_name(param: str) -> str:
-    """Description of the prompt"""
-    return f"Instructions for the AI based on {param}"
-```
+Edit `public/widget.html` to customize how tool results are displayed in ChatGPT. The widget receives tool output via `window.openai.toolOutput` and can listen for updates using the `openai:set_globals` event.
 
 ## Troubleshooting
 

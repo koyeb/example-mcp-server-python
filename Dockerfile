@@ -5,7 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy application code and public assets
+COPY main.py .
+COPY public/ ./public/
 
 EXPOSE 8080
 
