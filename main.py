@@ -6,50 +6,66 @@ import uvicorn
 mcp = FastMCP("Koyeb OpenAI Apps SDK Demo", json_response=True)
 
 # Read the HTML widget file
-with open("public/widget.html", "r") as f:
-    widget_html = f.read()
+with open("public/todo-widget.html", "r") as f:
+    todo_html = f.read()
+
+# In-memory todo storage
+todos = []
+next_id = 1
 
 # Register the UI widget as a resource
-@mcp.resource("ui://widget/demo.html")
-def get_widget() -> str:
-    return widget_html
+@mcp.resource("ui://widget/todo.html")
+def get_todo_widget() -> str:
+    return todo_html
 
-# Define a tool that generates a greeting message
-@mcp.tool()
-def greet_user(name: str, style="friendly") -> dict:
-    """Generate a greeting for a user in different styles.
-    
-    Args:
-        name: The person's name
-        style: The style of greeting (friendly, formal, or casual)
-    """
-    styles = {
-        "friendly": f"Hello, {name}! It's wonderful to meet you!",
-        "formal": f"Good day, {name}. It is a pleasure to make your acquaintance.",
-        "casual": f"Hey {name}! What's up?",
-    }
-    greeting = styles.get(style, styles['friendly'])
-    
+def reply_with_todos(message: str = "") -> dict:
+    """Helper function to return todos in the format OpenAI expects"""
+    content = [{"type": "text", "text": message}] if message else []
     return {
-        "content": [{"type": "text", "text": greeting}],
-        "structuredContent": {"greeting": greeting}
+        "content": content,
+        "structuredContent": {"tasks": todos}
     }
 
-# Define a tool that counts occurrences of a letter in a given text
+# Define a tool to add a todo
 @mcp.tool()
-def count_letter(text: str, letter: str) -> dict:
-    """Count how many times a specific letter appears in text.
+def add_todo(title: str) -> dict:
+    """Creates a todo item with the given title.
     
     Args:
-        text: The text to search in
-        letter: The letter to count (case-insensitive)
+        title: The title of the todo item
     """
-    count = text.lower().count(letter.lower())
+    global next_id
     
-    return {
-        "content": [{"type": "text", "text": f"Found {count} occurrence{'s' if count != 1 else ''} of '{letter}' in the text."}],
-        "structuredContent": {"count": count, "letter": letter, "text": text}
-    }
+    title = title.strip()
+    if not title:
+        return reply_with_todos("Missing title.")
+    
+    todo = {"id": f"todo-{next_id}", "title": title, "completed": False}
+    next_id += 1
+    todos.append(todo)
+    
+    return reply_with_todos(f'Added "{todo["title"]}".')
+
+# Define a tool to complete a todo
+@mcp.tool()
+def complete_todo(id: str) -> dict:
+    """Marks a todo as done by id.
+    
+    Args:
+        id: The ID of the todo to complete
+    """
+    if not id:
+        return reply_with_todos("Missing todo id.")
+    
+    todo = next((task for task in todos if task["id"] == id), None)
+    if not todo:
+        return reply_with_todos(f"Todo {id} was not found.")
+    
+    for task in todos:
+        if task["id"] == id:
+            task["completed"] = True
+    
+    return reply_with_todos(f'Completed "{todo["title"]}".')
 
 # Create the FastMCP app
 app = mcp.streamable_http_app()
