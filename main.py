@@ -106,9 +106,10 @@ def complete_todo(todo_id: str = Field(..., description="The ID of the todo to c
 # Create the FastMCP app
 app = mcp.streamable_http_app()
 
-# Add middleware to log request details
+# Add middleware to log request details and fix proxy issues
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -130,6 +131,8 @@ class DebugMiddleware(BaseHTTPMiddleware):
             logger.error(f"Error processing request: {e}")
             raise
 
+# Allow all hosts (since we're behind Cloudflare)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 app.add_middleware(DebugMiddleware)
 
 port = int(os.environ.get("PORT", 8080))
