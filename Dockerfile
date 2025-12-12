@@ -1,7 +1,9 @@
-# Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm
+FROM python:3.12-slim
 
 WORKDIR /app
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
@@ -30,8 +32,5 @@ ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8080
 
 ENV PORT=8080
-
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
 
 CMD ["python", "main.py"]
