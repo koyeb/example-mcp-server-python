@@ -29,8 +29,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-EXPOSE 8080
-
-ENV PORT=8080
-
-CMD ["/app/.venv/bin/python", "main.py"]
+CMD ["python", "main.py"]
