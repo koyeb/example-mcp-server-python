@@ -23,8 +23,9 @@ class TodoPayload(BaseModel):
     message: str = Field(default="")
 
 # Register the UI widget as a resource
-@mcp.resource(TEMPLATE_URI, "Todo widget", mime_type=MIME_TYPE)
+@mcp.resource(TEMPLATE_URI)
 def get_todo_widget() -> str:
+    """Todo widget"""
     return todo_html
 
 def tool_meta(tool_name: str):
@@ -103,7 +104,7 @@ def complete_todo(todo_id: str = Field(..., description="The ID of the todo to c
     )
 
 # Create the FastMCP app
-app = mcp.fastapi
+app = mcp.streamable_http_app()
 
 port = int(os.environ.get("PORT", 8080))
 print(f"Listening on port {port}")
