@@ -2,14 +2,15 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy dependency file
-COPY pyproject.toml ./
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies with pip from pyproject.toml
-RUN pip install --no-cache-dir mcp>=1.23.3 uvicorn>=0.38.0
-
-# Copy application code
+# Copy application code and public assets
 COPY main.py .
 COPY public/ ./public/
+
+EXPOSE 8080
+
+ENV PORT=8080
 
 CMD ["python", "main.py"]
