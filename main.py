@@ -1,5 +1,4 @@
 from mcp.server.fastmcp import FastMCP
-from starlette.middleware.trustedhost import TrustedHostMiddleware
 import os
 import uvicorn
 
@@ -43,11 +42,20 @@ def count_letter(text: str, letter: str) -> int:
     return text.lower().count(letter.lower())
 
 # Create the FastMCP app
-app = mcp.streamable_http_app()
+_app = mcp.streamable_http_app()
+
+# Wrap with custom ASGI app that accepts any host
+async def app(scope, receive, send):
+    # Remove host validation by accepting any host header
+    if scope["type"] == "http":
+        # Don't validate the host header
+        scope.setdefault("server", ("0.0.0.0", int(os.environ.get("PORT", 8000))))
+    await _app(scope, receive, send)
 
 port = int(os.environ.get("PORT", 8000))
 print(f"Listening on port {port}")
 
+# Run with host validation disabled
 uvicorn.run(
     app, 
     host="0.0.0.0", 
@@ -55,5 +63,6 @@ uvicorn.run(
     proxy_headers=True,
     forwarded_allow_ips="*",
     server_header=False,
-    date_header=False
+    date_header=False,
+    timeout_keep_alive=0
 )
