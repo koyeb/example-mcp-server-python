@@ -1,5 +1,4 @@
 from mcp.server.fastmcp import FastMCP
-from mcp.types import TextContent, Tool
 import os
 import uvicorn
 
@@ -9,10 +8,6 @@ mcp = FastMCP("Koyeb OpenAI Apps SDK Demo", json_response=True)
 # Read the HTML widget file
 with open("public/todo-widget.html", "r") as f:
     todo_html = f.read()
-
-# In-memory todo storage
-todos = []
-next_id = 1
 
 # Register the UI widget as a resource
 @mcp.resource("ui://widget/todo.html")
@@ -27,38 +22,23 @@ def add_todo(title: str) -> str:
     Args:
         title: The title of the todo item
     """
-    global next_id
+    if not title or not title.strip():
+        return "Error: Missing title."
     
-    title = title.strip()
-    if not title:
-        return "Missing title."
-    
-    todo = {"id": f"todo-{next_id}", "title": title, "completed": False}
-    next_id += 1
-    todos.append(todo)
-    
-    return f'Added "{todo["title"]}".'
+    return f'Added "{title.strip()}".'
 
-# Define a tool to complete a todo
+# Define a tool to complete a todo  
 @mcp.tool()
-def complete_todo(id: str) -> str:
+def complete_todo(todo_id: str) -> str:
     """Marks a todo as done by id.
     
     Args:
-        id: The ID of the todo to complete
+        todo_id: The ID of the todo to complete
     """
-    if not id:
-        return "Missing todo id."
+    if not todo_id:
+        return "Error: Missing todo id."
     
-    todo = next((task for task in todos if task["id"] == id), None)
-    if not todo:
-        return f"Todo {id} was not found."
-    
-    for task in todos:
-        if task["id"] == id:
-            task["completed"] = True
-    
-    return f'Completed "{todo["title"]}".'
+    return f'Completed todo {todo_id}.'
 
 # Create the FastMCP app
 app = mcp.streamable_http_app()
