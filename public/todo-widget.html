@@ -110,7 +110,8 @@
         console.log("Render called");
         console.log("window.openai:", window.openai);
         
-        const structuredContent = window.openai?.structuredContent;
+        // Try structuredContent first (for compatibility), then toolOutput
+        const structuredContent = window.openai?.structuredContent || window.openai?.toolOutput;
         console.log("structuredContent:", structuredContent);
         
         if (!structuredContent || !structuredContent.tasks) {
@@ -138,7 +139,14 @@
         console.log("openai:set_globals event received:", event.detail);
         console.log("Full globals object:", JSON.stringify(event.detail?.globals, null, 2));
         const globals = event.detail?.globals;
-        if (globals?.structuredContent !== undefined) {
+        
+        // Check for either structuredContent or toolOutput
+        if (globals?.structuredContent !== undefined || globals?.toolOutput !== undefined) {
+          // Update window.openai with the globals
+          if (globals.toolOutput) {
+            window.openai = window.openai || {};
+            window.openai.toolOutput = globals.toolOutput;
+          }
           render();
         } else {
           console.warn("structuredContent not found in globals. Available keys:", Object.keys(globals || {}));
