@@ -107,7 +107,11 @@
       const todoListEl = document.querySelector("#todoList");
 
       const render = () => {
+        console.log("Render called");
+        console.log("window.openai:", window.openai);
+        
         const structuredContent = window.openai?.structuredContent;
+        console.log("structuredContent:", structuredContent);
         
         if (!structuredContent || !structuredContent.tasks) {
           todoListEl.innerHTML = '<div class="empty-state">No todos yet. Add one to get started!</div>';
@@ -115,6 +119,7 @@
         }
 
         const tasks = structuredContent.tasks;
+        console.log("tasks:", tasks);
         
         if (tasks.length === 0) {
           todoListEl.innerHTML = '<div class="empty-state">No todos yet. Add one to get started!</div>';
@@ -130,6 +135,7 @@
       };
 
       const handleSetGlobals = (event) => {
+        console.log("openai:set_globals event received:", event.detail);
         const globals = event.detail?.globals;
         if (globals?.structuredContent !== undefined) {
           render();
